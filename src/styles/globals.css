@@ -4,170 +4,169 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============================================
-   Tiva Labs "Black Gold Futurism" Design System
-   ============================================ */
-
 :root {
   /* Core Colors */
   --color-background: #0B0C15;
   --color-primary: #FFD700;
   --color-secondary: #C0C0C0;
-  --color-surface: rgba(255, 255, 255, 0.03);
-  --color-surface-hover: rgba(255, 255, 255, 0.08);
+
+  /* Text */
   --color-text-body: #A0A0A0;
   --color-text-heading: #FFFFFF;
-  
+
   /* Glassmorphism */
-  --glass-blur: 12px;
+  --glass-bg: rgba(255, 255, 255, 0.02);
   --glass-border: rgba(255, 255, 255, 0.05);
-  
-  /* Shadows */
-  --shadow-gold: 0 0 20px rgba(255, 215, 0, 0.15);
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --glass-highlight: rgba(255, 255, 255, 0.08);
+  --glass-blur: 16px;
+
+  /* Glows */
+  --glow-gold: 0 0 30px rgba(255, 215, 0, 0.15);
+  --glow-text: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
-/* Base Styles */
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
-  font-family: 'Exo 2', sans-serif;
-}
-
+/* Atmospheric Background */
 body {
   background-color: var(--color-background);
   color: var(--color-text-body);
-  min-height: 100vh;
+  font-family: 'Exo 2', sans-serif;
+  overflow-x: hidden;
+  position: relative;
 }
 
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
+/* Ambient Light Orbs - Pure CSS */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.15;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body::before {
+  top: -20%;
+  left: -10%;
+  background: radial-gradient(circle, var(--color-primary), transparent 70%);
+  animation: float-slow 20s infinite alternate;
+}
+
+body::after {
+  bottom: -20%;
+  right: -10%;
+  background: radial-gradient(circle, var(--color-secondary), transparent 70%);
+  animation: float-slow 25s infinite alternate-reverse;
+}
+
+@keyframes float-slow {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  100% {
+    transform: translate(50px, 30px);
+  }
+}
+
+/* Typography Overrides */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: 'Orbitron', sans-serif;
   color: var(--color-text-heading);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-/* ============================================
-   Component Utilities
-   ============================================ */
-
-/* Glassmorphism Card */
+/* Utilities */
 @layer components {
+
+  /* Ultra-Premium Glass Card */
   .glass-card {
-    @apply bg-surface backdrop-blur-glass rounded-glass;
+    @apply relative overflow-hidden backdrop-blur-md rounded-2xl transition-all duration-500;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
     border: 1px solid var(--glass-border);
-    transition: all 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255, 255, 255, 0.06), transparent 40%);
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
   }
 
   .glass-card:hover {
-    @apply bg-surface-hover;
-    border-color: rgba(255, 215, 0, 0.1);
-    box-shadow: var(--shadow-gold);
-  }
-
-  /* Primary Button - Gold */
-  .btn-primary {
-    @apply px-6 py-3 rounded-full font-semibold;
-    @apply bg-primary text-background;
-    @apply transition-all duration-300;
-    font-family: 'Orbitron', sans-serif;
-    letter-spacing: 0.05em;
-  }
-
-  .btn-primary:hover {
-    box-shadow: var(--shadow-gold);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), var(--glow-gold);
     transform: translateY(-2px);
   }
 
-  .btn-primary:active {
-    transform: translateY(0);
+  .glass-card:hover::before {
+    opacity: 1;
   }
 
-  /* Secondary Button - Ghost */
+  /* Buttons */
+  .btn-primary {
+    @apply relative px-8 py-3 rounded-full font-bold overflow-hidden transition-all duration-300;
+    background: linear-gradient(90deg, #FFD700, #E5C100);
+    color: #0B0C15;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 0.05em;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  }
+
+  .btn-primary:hover {
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
+    transform: scale(1.02);
+  }
+
   .btn-secondary {
-    @apply px-6 py-3 rounded-full font-medium;
-    @apply bg-transparent text-white;
-    @apply border border-white/20;
-    @apply transition-all duration-300;
+    @apply px-8 py-3 rounded-full font-medium transition-all duration-300;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
     font-family: 'Exo 2', sans-serif;
   }
 
   .btn-secondary:hover {
-    @apply bg-white/5 border-secondary/50;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.5);
   }
 
-  /* Gold Text Gradient */
+  /* Text Gradients */
   .text-gold-gradient {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+    background: linear-gradient(to right, #FFD700, #FFFACD, #FFD700);
+    background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
+    animation: shine 5s linear infinite;
   }
 }
 
-/* ============================================
-   Animations
-   ============================================ */
-
-@keyframes pulse-gold {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
+@keyframes shine {
   to {
-    opacity: 1;
-    transform: translateY(0);
+    background-position: 200% center;
   }
 }
 
-.animate-pulse-gold {
-  animation: pulse-gold 2s ease-in-out infinite;
-}
-
-.animate-fade-in {
-  animation: fade-in 0.5s ease-out forwards;
-}
-
-/* Staggered Animation Delays */
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
-.delay-500 { animation-delay: 500ms; }
-
-/* ============================================
-   Scrollbar Styling
-   ============================================ */
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-background);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--color-surface-hover);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-secondary);
+/* Scanline Effect (Subtle retro-futurism) */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.1));
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0.15;
 }

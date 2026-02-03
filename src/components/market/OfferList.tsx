@@ -2,6 +2,8 @@
 
 import { OtcOfferContract } from '@/lib/types'
 import { OfferCard } from './OfferCard'
+import { motion } from 'framer-motion'
+import { PackageOpen } from 'lucide-react'
 
 export interface OfferListProps {
     offers: OtcOfferContract[]
@@ -18,38 +20,48 @@ export function OfferList({
     onTrade,
     onCancel,
     loading = false,
-    emptyMessage = 'No offers available',
+    emptyMessage = 'No active offers found in the market.',
 }: OfferListProps) {
+    const container = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    }
+
+    const item = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50 } }
+    }
+
     if (offers.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="w-16 h-16 rounded-full bg-surface flex items-center justify-center mb-4">
-                    <svg
-                        className="w-8 h-8 text-text-body"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={1.5}
-                            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
-                        />
-                    </svg>
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center py-24 text-center border border-dashed border-white/10 rounded-2xl bg-surface/30 backdrop-blur-sm"
+            >
+                <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 animate-pulse">
+                    <PackageOpen className="w-8 h-8 text-primary/50" />
                 </div>
-                <p className="text-text-body text-lg">{emptyMessage}</p>
-            </div>
+                <p className="text-white font-orbitron text-lg tracking-wide mb-2">Market Empty</p>
+                <p className="text-text-body text-sm max-w-xs mx-auto">{emptyMessage}</p>
+            </motion.div>
         )
     }
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {offers.map((offer, index) => (
-                <div
-                    key={offer.contractId}
-                    style={{ animationDelay: `${index * 100}ms` }}
-                >
+        <motion.div
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+        >
+            {offers.map((offer) => (
+                <motion.div key={offer.contractId} variants={item} className="h-full">
                     <OfferCard
                         offer={offer.payload}
                         contractId={offer.contractId}
@@ -58,8 +70,8 @@ export function OfferList({
                         onCancel={onCancel}
                         loading={loading}
                     />
-                </div>
+                </motion.div>
             ))}
-        </div>
+        </motion.div>
     )
 }

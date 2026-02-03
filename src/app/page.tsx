@@ -2,12 +2,11 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Header } from '@/components/layout'
-import { OfferList, TradeModal } from '@/components/market'
-import { Button } from '@/components/ui'
-import { OtcOfferContract, OtcOffer } from '@/lib/types'
+import { Header, Hero } from '@/components/layout'
+import { OfferList, TradeModal } from '@/components/market' // Assumed exports
+import { OtcOfferContract } from '@/lib/types'
+import { cn } from '@/lib/utils'
 
-// Mock data for development
 const mockOffers: OtcOfferContract[] = [
     {
         contractId: 'mock-offer-1',
@@ -21,44 +20,12 @@ const mockOffers: OtcOfferContract[] = [
             feeRate: '0.005',
             publicParty: 'public::5678',
             lockedAssetCid: 'holding-1' as any,
-            lockedInstrument: {
-                admin: 'admin::1234',
-                id: { unpack: 'splice:token:BTC' },
-            },
-            requestedInstrument: {
-                admin: 'admin::1234',
-                id: { unpack: 'splice:token:USDC' },
-            },
+            lockedInstrument: { admin: 'admin', id: { unpack: 'splice:token:BTC' } },
+            requestedInstrument: { admin: 'admin', id: { unpack: 'splice:token:USDC' } },
             paymentTokenScale: 6,
-            unitPrice: '42150.00',
-            validUntil: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(), // 12 hours
-            description: 'Selling BTC at market rate. Quick settlement.',
-        },
-    },
-    {
-        contractId: 'mock-offer-2',
-        templateId: 'OtcMarket:OtcOffer',
-        signatories: ['bob::5678'],
-        observers: ['public::5678'],
-        payload: {
-            creator: 'bob::abcdef1234567890',
-            validator: 'validator::1234',
-            cleaner: 'cleaner::1234',
-            feeRate: '0.005',
-            publicParty: 'public::5678',
-            lockedAssetCid: 'holding-2' as any,
-            lockedInstrument: {
-                admin: 'admin::1234',
-                id: { unpack: 'splice:token:ETH' },
-            },
-            requestedInstrument: {
-                admin: 'admin::1234',
-                id: { unpack: 'splice:token:USDC' },
-            },
-            paymentTokenScale: 6,
-            unitPrice: '2850.00',
-            validUntil: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(), // 6 hours
-            description: 'ETH available for immediate swap.',
+            unitPrice: '96500.00',
+            validUntil: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
+            description: 'Institutional block trade. Rapid settlement required.',
         },
     },
     {
@@ -73,18 +40,32 @@ const mockOffers: OtcOfferContract[] = [
             feeRate: '0.003',
             publicParty: 'public::5678',
             lockedAssetCid: 'holding-3' as any,
-            lockedInstrument: {
-                admin: 'admin::1234',
-                id: { unpack: 'splice:token:SOL' },
-            },
-            requestedInstrument: {
-                admin: 'admin::1234',
-                id: { unpack: 'splice:token:USDC' },
-            },
+            lockedInstrument: { admin: 'admin', id: { unpack: 'splice:token:SOL' } },
+            requestedInstrument: { admin: 'admin', id: { unpack: 'splice:token:USDC' } },
             paymentTokenScale: 6,
-            unitPrice: '98.50',
-            validUntil: new Date(Date.now() + 20 * 60 * 60 * 1000).toISOString(), // 20 hours
-            description: 'Large SOL position. Willing to negotiate for bulk orders.',
+            unitPrice: '142.50',
+            validUntil: new Date(Date.now() + 20 * 60 * 60 * 1000).toISOString(),
+            description: 'Accumulating USDC inventory.',
+        },
+    },
+    {
+        contractId: 'mock-offer-2',
+        templateId: 'OtcMarket:OtcOffer',
+        signatories: ['bob::5678'],
+        observers: ['public::5678'],
+        payload: {
+            creator: 'bob::abcdef1234567890',
+            validator: 'validator::1234',
+            cleaner: 'cleaner::1234',
+            feeRate: '0.005',
+            publicParty: 'public::5678',
+            lockedAssetCid: 'holding-2' as any,
+            lockedInstrument: { admin: 'admin', id: { unpack: 'splice:token:ETH' } },
+            requestedInstrument: { admin: 'admin', id: { unpack: 'splice:token:USDC' } },
+            paymentTokenScale: 6,
+            unitPrice: '3850.00',
+            validUntil: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+            description: 'ETH available for immediate swap.',
         },
     },
 ]
@@ -93,13 +74,11 @@ export default function MarketPage() {
     const [selectedOffer, setSelectedOffer] = useState<OtcOfferContract | null>(null)
     const [tradeModalOpen, setTradeModalOpen] = useState(false)
     const [loading, setLoading] = useState(false)
-
-    // Mock wallet state
     const [walletConnected, setWalletConnected] = useState(false)
     const [partyId, setPartyId] = useState<string | undefined>()
+    const [activeFilter, setActiveFilter] = useState('All')
 
     const handleConnectWallet = () => {
-        // TODO: Implement CantonLink wallet connection
         setWalletConnected(true)
         setPartyId('user::1234567890abcdef')
     }
@@ -114,7 +93,6 @@ export default function MarketPage() {
 
     const handleConfirmTrade = async () => {
         setLoading(true)
-        // TODO: Implement actual trade execution
         await new Promise(resolve => setTimeout(resolve, 2000))
         setLoading(false)
         setTradeModalOpen(false)
@@ -122,70 +100,87 @@ export default function MarketPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col pt-[88px]"> {/* Padding for fixed header */}
             <Header
                 walletConnected={walletConnected}
                 partyId={partyId}
                 onConnectWallet={handleConnectWallet}
             />
 
-            <main className="flex-1 container mx-auto px-6 py-8">
-                {/* Page Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="mb-8"
-                >
-                    <h1 className="font-orbitron text-3xl font-bold text-white tracking-wide mb-2">
-                        OTC Market
-                    </h1>
-                    <p className="text-text-body">
-                        Browse and trade digital assets securely on Canton Network
-                    </p>
-                </motion.div>
+            <Hero />
 
-                {/* Filters (placeholder) */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    className="mb-8 flex items-center gap-4"
-                >
-                    <Button variant="secondary" size="sm">All Assets</Button>
-                    <Button variant="ghost" size="sm">BTC</Button>
-                    <Button variant="ghost" size="sm">ETH</Button>
-                    <Button variant="ghost" size="sm">SOL</Button>
-                </motion.div>
+            <main className="container mx-auto px-6 pb-24 relative z-10">
+                <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        className="flex items-center gap-4"
+                    >
+                        <div className="w-1.5 h-12 bg-gradient-to-b from-primary to-transparent rounded-full" />
+                        <div>
+                            <h3 className="font-orbitron text-3xl font-bold text-white tracking-wide">
+                                Live Market
+                            </h3>
+                            <p className="text-text-body text-sm">Real-time liquidity feed</p>
+                        </div>
+                    </motion.div>
 
-                {/* Offer List */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                    <OfferList
-                        offers={mockOffers}
-                        currentUserParty={partyId}
-                        onTrade={handleTrade}
-                        loading={loading}
-                    />
-                </motion.div>
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        className="flex p-1 bg-white/5 rounded-full border border-white/5 backdrop-blur-sm"
+                    >
+                        {['All', 'BTC', 'ETH', 'SOL', 'USDC'].map(f => (
+                            <button
+                                key={f}
+                                onClick={() => setActiveFilter(f)}
+                                className={cn(
+                                    "px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 font-exo",
+                                    activeFilter === f
+                                        ? "bg-primary text-black shadow-lg shadow-primary/25 font-bold scale-105"
+                                        : "text-text-body hover:text-white"
+                                )}
+                            >
+                                {f}
+                            </button>
+                        ))}
+                    </motion.div>
+                </div>
+
+                <OfferList
+                    offers={mockOffers}
+                    currentUserParty={partyId}
+                    onTrade={handleTrade}
+                    loading={loading}
+                />
             </main>
 
-            {/* Trade Modal */}
             <TradeModal
                 isOpen={tradeModalOpen}
                 onClose={() => setTradeModalOpen(false)}
                 offer={selectedOffer?.payload || null}
-                lockedAmount={1.5} // Mock amount
+                lockedAmount={1.5}
                 onConfirm={handleConfirmTrade}
                 loading={loading}
             />
 
-            {/* Footer */}
-            <footer className="py-6 text-center text-text-body text-sm border-t border-white/5">
-                <p>Powered by Canton Network & Daml</p>
+            <footer className="py-12 border-t border-white/5 bg-black/60 backdrop-blur-xl mt-auto">
+                <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div className="text-center md:text-left">
+                        <p className="font-orbitron font-bold text-lg text-white mb-1 tracking-widest">TIVA <span className="text-primary">OTC</span></p>
+                        <p className="text-text-body text-xs tracking-wider uppercase opacity-50">Authorized Institutional Partner</p>
+                    </div>
+                    <div className="flex gap-6 text-sm text-text-body font-mono">
+                        <a href="#" className="hover:text-primary transition-colors">Documentation</a>
+                        <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+                        <a href="#" className="hover:text-primary transition-colors">Terms</a>
+                    </div>
+                    <div className="text-white/20 text-xs font-mono">
+                        v1.0.0-beta // Build 2026.02
+                    </div>
+                </div>
             </footer>
         </div>
     )
