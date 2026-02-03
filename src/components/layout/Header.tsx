@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { LayoutGrid, Plus, User, Wallet } from 'lucide-react'
+import { LayoutGrid, Plus, User, Wallet, Hexagon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui'
+import { useState, useEffect } from 'react' // Added useState and useEffect
 
 interface HeaderProps {
     walletConnected?: boolean
@@ -13,17 +14,34 @@ interface HeaderProps {
     onConnectWallet?: () => void
 }
 
+// Ensure header is visible at top with a subtle gradient
 export function Header({ walletConnected = false, partyId, onConnectWallet }: HeaderProps) {
     const pathname = usePathname()
+    const [scrolled, setScrolled] = useState(false)
+
+    // Scroll effect
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20)
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     const navLinks = [
-        { href: '/', label: 'Market', icon: LayoutGrid },
+        { href: '/', label: 'Home', icon: Hexagon },
+        { href: '/market', label: 'Market', icon: LayoutGrid },
         { href: '/create', label: 'Create', icon: Plus },
-        { href: '/my-offers', label: 'My Offers', icon: User },
+        { href: '/my-offers', label: 'Portfolio', icon: User },
     ]
 
     return (
-        <header className="sticky top-0 z-40 border-b border-white/5 bg-background/80 backdrop-blur-xl">
+        <motion.header
+            className={cn(
+                "fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b",
+                scrolled
+                    ? "bg-background/80 backdrop-blur-xl border-white/5 py-4 shadow-lg"
+                    : "bg-gradient-to-b from-black/60 to-transparent border-transparent py-6"
+            )}
+        >
             <div className="container mx-auto px-6">
                 <div className="flex h-16 items-center justify-between">
                     {/* Logo */}
@@ -88,6 +106,6 @@ export function Header({ walletConnected = false, partyId, onConnectWallet }: He
                     </div>
                 </div>
             </div>
-        </header>
+        </motion.header>
     )
 }
