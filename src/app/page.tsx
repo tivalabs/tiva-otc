@@ -3,8 +3,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Header, Hero } from '@/components/layout'
-import { ArrowRight } from 'lucide-react'
-import Link from 'next/link'
 import { Button } from '@/components/ui'
 
 export default function HomePage() {
@@ -48,15 +46,6 @@ export default function HomePage() {
                                 <p className="text-text-body leading-relaxed">{feature.desc}</p>
                             </motion.div>
                         ))}
-                    </div>
-
-                    <div className="mt-24 text-center">
-                        <Link href="/market">
-                            <Button size="lg" className="group text-lg px-10 py-6">
-                                Enter Market
-                                <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
-                            </Button>
-                        </Link>
                     </div>
                 </div>
             </section>

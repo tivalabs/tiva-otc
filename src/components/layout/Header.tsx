@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { LayoutGrid, Plus, User, Wallet, Hexagon } from 'lucide-react'
@@ -45,19 +46,25 @@ export function Header({ walletConnected = false, partyId, onConnectWallet }: He
             <div className="container mx-auto px-6">
                 <div className="flex h-16 items-center justify-between">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2">
-                        <motion.div
-                            whileHover={{ scale: 1.05 }}
-                            className="relative"
-                        >
-                            <span className="font-orbitron text-2xl font-bold tracking-wider">
-                                <span className="text-gold-gradient">TIVA</span>
-                                <span className="text-white ml-1">OTC</span>
+                    <Link href="/" className="group relative flex items-center gap-3">
+                        <div className="relative w-12 h-12 flex items-center justify-center">
+                            <Image
+                                src="/logo.png"
+                                alt="Tiva OTC"
+                                width={48}
+                                height={48}
+                                className="object-contain drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]"
+                            />
+                        </div>
+
+                        <div className="flex items-baseline gap-1">
+                            <span className="font-orbitron text-2xl font-bold tracking-widest text-white group-hover:text-gold-gradient transition-all duration-300">
+                                TIVA
                             </span>
-                            <span className="absolute -bottom-1 right-0 text-[10px] text-primary font-orbitron tracking-[0.1em]">
-                                LABS
+                            <span className="text-[10px] text-primary font-bold tracking-[0.2em] font-orbitron uppercase transform translate-y-[-2px]">
+                                OTC
                             </span>
-                        </motion.div>
+                        </div>
                     </Link>
 
                     {/* Navigation */}

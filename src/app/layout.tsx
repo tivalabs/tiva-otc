@@ -4,6 +4,10 @@ import '@/styles/globals.css'
 export const metadata: Metadata = {
     title: 'Tiva OTC | Premium Digital Asset Terminal',
     description: 'Institutional-grade OTC trading platform on Canton Network.',
+    icons: {
+        icon: '/logo.png',
+        apple: '/logo.png',
+    },
 }
 
 export default function RootLayout({

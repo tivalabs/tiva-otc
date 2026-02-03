@@ -1,0 +1,3 @@
+This file is just a placeholder to create the directory if it doesn't exist, but write_to_file creates parent dirs. However, public is a folder. I will use run_command mkdir.
+Wait, I can just write `public/robots.txt` or something.
+But run_command is easier.

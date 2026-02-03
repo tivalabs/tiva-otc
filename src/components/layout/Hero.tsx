@@ -1,8 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ArrowDown } from 'lucide-react'
+import { ArrowDown, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui'
+import Link from 'next/link'
 
 export function Hero() {
     return (
@@ -58,12 +59,12 @@ export function Hero() {
                     transition={{ duration: 0.8, delay: 0.5 }}
                     className="flex flex-col sm:flex-row gap-6 justify-center items-center"
                 >
-                    <Button size="lg" className="min-w-[200px] text-lg py-6 shadow-glow">
-                        Launch Terminal
-                    </Button>
-                    <Button variant="secondary" size="lg" className="min-w-[200px] text-lg py-6">
-                        Read Whitepaper
-                    </Button>
+                    <Link href="/market">
+                        <Button size="lg" className="min-w-[200px] text-lg py-6 shadow-glow group">
+                            Enter Market
+                            <ArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                    </Link>
                 </motion.div>
 
                 {/* Stats Strip */}
