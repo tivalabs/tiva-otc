@@ -4,19 +4,21 @@ import { motion } from 'framer-motion'
 import { ArrowDown, ArrowRight } from 'lucide-react'
 import { Button } from '@/components/ui'
 import Link from 'next/link'
+import { Beams } from '@/components/background'
 
 export function Hero() {
     return (
-        <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-            {/* Background Decorative Elements */}
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[100px] animate-pulse-gold" />
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-[100px]" />
-
-                {/* Grid Overlay */}
-                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10"
-                    style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px' }}
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
+            {/* Background Decorative Elements - Full screen with top fade for header */}
+            <div className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
+                <Beams beamHeight={100} lightColor="#ffd700" />
+                {/* Grid Overlay for texture */}
+                <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20 mix-blend-overlay"
+                    style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.1) 1px, transparent 0)', backgroundSize: '40px 40px' }}
                 />
+                {/* Gradient Fade - Top only (Header legibility) and side vignetting, clear bottom */}
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)]" />
+                <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-black to-transparent" />
             </div>
 
             <div className="container mx-auto px-6 relative z-10 text-center">
