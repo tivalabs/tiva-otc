@@ -1,0 +1,20 @@
+{
+    "ledger": {
+        "host": "",
+        "port": 443
+    },
+    "parties": {
+        "publicParty": "",
+        "operator": "",
+        "validator": "",
+        "cleaner": ""
+    },
+    "contracts": {
+        "serviceTemplateId": "OtcMarket:OtcMarketService",
+        "offerTemplateId": "OtcMarket:OtcOffer"
+    },
+    "settings": {
+        "defaultValidityHours": 24,
+        "refreshIntervalMs": 5000
+    }
+}
