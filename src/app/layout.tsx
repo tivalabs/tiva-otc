@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {
-    title: 'Tiva OTC | Premium Digital Asset Terminal',
+    title: 'Tiva OTC',
     description: 'Institutional-grade OTC trading platform on Canton Network.',
     icons: {
         icon: '/logo.png',

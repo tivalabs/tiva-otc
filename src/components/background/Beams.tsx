@@ -14,7 +14,7 @@ import './Beams.css';
 // Helper function to extend materials
 // @ts-ignore
 function extendMaterial(BaseMaterial, cfg) {
-    const physical = THREE.ShaderLib.physical;
+    const physical = THREE.ShaderLib.physical as any;
     const { vertexShader: baseVert, fragmentShader: baseFrag, uniforms: baseUniforms } = physical;
     const baseDefines = physical.defines ?? {};
 
