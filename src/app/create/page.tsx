@@ -52,13 +52,13 @@ export default function CreateOfferPage() {
         <div className="min-h-screen flex flex-col">
             <Header walletConnected={true} partyId="user::1234567890abcdef" />
 
-            <main className="flex-1 container mx-auto px-6 py-8">
+            <main className="flex-1 container mx-auto px-6 pt-32 pb-8">
                 {/* Page Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="mb-8"
+                    className="mb-8 max-w-2xl mx-auto"
                 >
                     <h1 className="font-orbitron text-3xl font-bold text-white tracking-wide mb-2">
                         Create Offer
@@ -69,7 +69,7 @@ export default function CreateOfferPage() {
                 </motion.div>
 
                 {/* Form */}
-                <div className="max-w-2xl">
+                <div className="max-w-2xl mx-auto">
                     <CreateOfferForm
                         userAssets={mockUserAssets}
                         availableInstruments={mockInstruments}

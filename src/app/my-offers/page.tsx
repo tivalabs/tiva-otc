@@ -55,7 +55,7 @@ export default function MyOffersPage() {
         <div className="min-h-screen flex flex-col">
             <Header walletConnected={true} partyId={partyId} />
 
-            <main className="flex-1 container mx-auto px-6 py-8">
+            <main className="flex-1 container mx-auto px-6 pt-32 pb-8">
                 {/* Page Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}

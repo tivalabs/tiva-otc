@@ -100,14 +100,14 @@ export default function MarketPage() {
     }
 
     return (
-        <div className="min-h-screen flex flex-col pt-[88px]">
+        <div className="min-h-screen flex flex-col">
             <Header
                 walletConnected={walletConnected}
                 partyId={partyId}
                 onConnectWallet={handleConnectWallet}
             />
 
-            <main className="container mx-auto px-6 pb-24 relative z-10">
+            <main className="container mx-auto px-6 pt-32 pb-24 relative z-10">
                 <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
