@@ -30,6 +30,7 @@ const mockMyOffers: OtcOfferContract[] = [
             },
             paymentTokenScale: 6,
             unitPrice: '43000.00',
+            amount: '0.1',
             validUntil: new Date(Date.now() + 18 * 60 * 60 * 1000).toISOString(),
             description: 'My BTC offer for sale',
         },
