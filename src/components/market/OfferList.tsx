@@ -12,6 +12,7 @@ export interface OfferListProps {
     onCancel?: (contractId: string) => void
     loading?: boolean
     emptyMessage?: string
+    viewType?: 'buy' | 'sell' | 'all'
 }
 
 export function OfferList({
@@ -21,6 +22,7 @@ export function OfferList({
     onCancel,
     loading = false,
     emptyMessage = 'No active offers found in the market.',
+    viewType = 'all',
 }: OfferListProps) {
     const container = {
         hidden: { opacity: 0 },
@@ -47,7 +49,9 @@ export function OfferList({
                 <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-6 animate-pulse">
                     <PackageOpen className="w-8 h-8 text-primary/50" />
                 </div>
-                <p className="text-white font-orbitron text-lg tracking-wide mb-2">Market Empty</p>
+                <p className="text-white font-orbitron text-lg tracking-wide mb-2">
+                    {viewType === 'buy' ? 'No Buy Offers' : viewType === 'sell' ? 'No Sell Offers' : 'Market Empty'}
+                </p>
                 <p className="text-text-body text-sm max-w-xs mx-auto">{emptyMessage}</p>
             </motion.div>
         )

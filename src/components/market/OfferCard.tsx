@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { Clock, User, ArrowRightLeft, ShieldCheck, Zap } from 'lucide-react'
 import { Card, Button } from '@/components/ui'
 import { OtcOffer, InstrumentId } from '@/lib/types'
-import { formatTimeRemaining, formatPartyId, formatAmount, isOfferExpired, parseDecimal } from '@/lib/utils'
+import { formatTimeRemaining, formatPartyId, formatAmount, isOfferExpired, parseDecimal, cn } from '@/lib/utils'
 
 export interface OfferCardProps {
     offer: OtcOffer
@@ -35,6 +35,50 @@ export function OfferCard({
 
     const lockedSymbol = formatInstrument(offer.lockedInstrument)
     const requestedSymbol = formatInstrument(offer.requestedInstrument)
+
+    // Determine if this is a "Sell Side" offer (Maker Buying Crypto with USDC)
+    const isSellSide = lockedSymbol === 'USDC'
+
+    // Display Logic
+    // If Sell Side: 
+    // - Asset = Requested (BTC)
+    // - Price = 1 / UnitPrice (because UnitPrice is in BTC/USDC, we want Price in USDC)
+    // - Amount = Amount of Asset (Requested Amount = LockedAmount * UnitPrice) ... Wait.
+    //   If Maker locks 100,000 USDC. UnitPrice = 0.00001 BTC/USDC.
+    //   Requested Amount = 100,000 * 0.00001 = 1 BTC.
+    //   So 'amount' in offer (if it represents Locked Amount) needs conversion.
+    //   BUT I added 'amount' to OtcOffer. Let's assume 'amount' in OtcOffer represents the MAIN ASSET amount.
+    //   For standard Buy side: Locked Amount (BTC).
+    //   For Sell side: We want to show BTC amount. 
+    //   If 'amount' in OtcOffer is the LOCKED amount (USDC), then we need to convert.
+    //   Let's assume for now 'amount' in OtcOffer IS the meaningless locked amount if we don't control it?
+    //   Actually, in my mock data I put '19300.00' for the USDC offer. That is likely the USDC amount.
+    //   So if Locked = USDC, Amount = USDC.
+    //   We want to display BTC Amount.
+    //   BTC Amount = USDC Amount * UnitPrice (BTC/USDC).
+
+    // Let's refine the logic:
+    const rawAmount = offer.amount ? parseDecimal(offer.amount) : 0
+
+    let displayPrice = unitPrice
+    let displayAmount = rawAmount
+    let displayAssetSymbol = lockedSymbol
+
+    if (isSellSide) {
+        // Invert Price: UnitPrice is BTC/USDC. We want USDC/BTC.
+        displayPrice = unitPrice > 0 ? (1 / unitPrice) : 0
+
+        // Calculate Asset Amount: Locked is USDC. We want BTC.
+        // BTC = USDC * (BTC/USDC)
+        displayAmount = rawAmount * unitPrice
+
+        displayAssetSymbol = requestedSymbol
+    }
+
+    // For Buy Side (Standard):
+    // Locked = BTC. UnitPrice = USDC/BTC.
+    // Display Price = 96500. Correct.
+    // Display Amount = Locked Amount (BTC). Correct.
 
     return (
         <motion.div
@@ -71,21 +115,45 @@ export function OfferCard({
 
                         {/* Status Badge */}
                         <div className={`px-3 py-1 rounded-full text-[10px] font-bold tracking-widest border ${expired
-                                ? 'bg-red-500/10 border-red-500/20 text-red-500'
-                                : 'bg-primary/10 border-primary/20 text-primary box-shadow-glow'
+                            ? 'bg-red-500/10 border-red-500/20 text-red-500'
+                            : 'bg-primary/10 border-primary/20 text-primary box-shadow-glow'
                             }`}>
                             {expired ? 'EXPIRED' : 'ACTIVE'}
                         </div>
                     </div>
 
                     {/* Big Price Display */}
-                    <div className="mt-2">
-                        <span className="text-text-body text-xs uppercase tracking-widest">Price / Unit</span>
-                        <div className="flex items-baseline gap-2 mt-1">
-                            <span className="font-orbitron text-3xl font-bold text-white tracking-wider">
-                                {formatAmount(unitPrice, 4)}
+                    {/* Big Price Display */}
+                    <div className="mt-4 flex flex-col gap-4">
+                        <div>
+                            <span className="text-text-body text-[10px] uppercase tracking-widest block mb-1">
+                                {isSellSide ? 'Bid Price' : 'Price / Unit'}
                             </span>
-                            <span className="text-primary font-bold text-sm">{requestedSymbol}</span>
+                            <div className="flex items-baseline gap-1.5">
+                                <span className={cn(
+                                    "font-orbitron text-2xl font-bold tracking-wider break-all",
+                                    isSellSide ? "text-secondary" : "text-white"
+                                )}>
+                                    {formatAmount(displayPrice, isSellSide ? 2 : 4)}
+                                </span>
+                                <span className="text-text-body font-bold text-xs whitespace-nowrap">
+                                    {isSellSide ? lockedSymbol : requestedSymbol}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span className="text-text-body text-[10px] uppercase tracking-widest block mb-1">
+                                Quantity
+                            </span>
+                            <div className="flex items-baseline gap-1.5">
+                                <span className="font-orbitron text-2xl font-bold text-white tracking-wider break-all">
+                                    {formatAmount(displayAmount, 4)}
+                                </span>
+                                <span className="text-primary font-bold text-xs whitespace-nowrap">
+                                    {displayAssetSymbol}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

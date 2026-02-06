@@ -12,10 +12,10 @@ const mockUserAssets = [
         contractId: 'holding-user-1' as ContractId<Holding>,
         instrument: {
             admin: 'admin::1234',
-            id: { unpack: 'splice:token:BTC' },
+            id: { unpack: 'splice:token:enzoBTC' },
         } as InstrumentId,
         amount: '0.5',
-        symbol: 'BTC',
+        symbol: 'enzoBTC',
     },
     {
         contractId: 'holding-user-2' as ContractId<Holding>,
@@ -26,12 +26,20 @@ const mockUserAssets = [
         amount: '3.2',
         symbol: 'ETH',
     },
+    {
+        contractId: 'holding-user-3' as ContractId<Holding>,
+        instrument: {
+            admin: 'admin::1234',
+            id: { unpack: 'splice:token:CC' },
+        } as InstrumentId,
+        amount: '50000.00',
+        symbol: 'CC',
+    },
 ]
 
 // Mock available payment instruments
 const mockInstruments: InstrumentId[] = [
-    { admin: 'admin::1234', id: { unpack: 'splice:token:USDC' } },
-    { admin: 'admin::1234', id: { unpack: 'splice:token:USDT' } },
+    { admin: 'admin::1234', id: { unpack: 'splice:token:CC' } },
 ]
 
 export default function CreateOfferPage() {

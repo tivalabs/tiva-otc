@@ -1,11 +1,6 @@
-export { Button } from './Button'
-export type { ButtonProps } from './Button'
-
-export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card'
-export type { CardProps } from './Card'
-
-export { Input } from './Input'
-export type { InputProps } from './Input'
-
-export { Modal, ModalFooter } from './Modal'
-export type { ModalProps } from './Modal'
+export * from './Button'
+export * from './Card'
+export * from './Input'
+export * from './Modal'
+export * from './Tabs'
+export * from './Select'

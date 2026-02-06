@@ -74,6 +74,7 @@ export interface OtcOffer {
     requestedInstrument: InstrumentId
     paymentTokenScale: number
     unitPrice: Decimal
+    amount: Decimal // Added for frontend display
     validUntil: Time
     description: string
 }
