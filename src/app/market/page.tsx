@@ -1,203 +1,256 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { Header } from '@/components/layout'
-import { OfferList, TradeModal } from '@/components/market' // Assumed exports
-import { Tabs } from '@/components/ui'
+import { MarketHeader } from '@/components/market/MarketHeader'
+import { MarketOrderBook } from '@/components/market/MarketOrderBook'
+import { MarketTradePanel } from '@/components/market/MarketTradePanel'
+import { MarketGraph } from '@/components/market/MarketGraph'
+import { MarketHistory } from '@/components/market/MarketHistory'
+import { MarketMyOrders } from '@/components/market/MarketMyOrders'
+import { MarketTabs } from '@/components/market/MarketTabs'
 import { OtcOfferContract } from '@/lib/types'
-import { cn } from '@/lib/utils'
 
-const mockOffers: OtcOfferContract[] = [
-    {
-        contractId: 'mock-offer-1',
-        templateId: 'OtcMarket:OtcOffer',
-        signatories: ['alice::1234'],
-        observers: ['public::5678'],
-        payload: {
-            creator: 'alice::1234567890abcdef',
-            validator: 'validator::1234',
-            cleaner: 'cleaner::1234',
-            feeRate: '0.005',
-            publicParty: 'public::5678',
-            lockedAssetCid: 'holding-1' as any,
-            lockedInstrument: { admin: 'admin', id: { unpack: 'splice:token:enzoBTC' } },
-            requestedInstrument: { admin: 'admin', id: { unpack: 'splice:token:CC' } },
-            paymentTokenScale: 6,
-            unitPrice: '96500.00',
-            amount: '0.05',
-            validUntil: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(),
-            description: 'Selling enzoBTC for CC.',
-        },
-    },
-    {
-        contractId: 'mock-offer-2',
-        templateId: 'OtcMarket:OtcOffer',
-        signatories: ['bob::5678'],
-        observers: ['public::5678'],
-        payload: {
-            creator: 'bob::abcdef1234567890',
-            validator: 'validator::1234',
-            cleaner: 'cleaner::1234',
-            feeRate: '0.005',
-            publicParty: 'public::5678',
-            lockedAssetCid: 'holding-2' as any,
-            lockedInstrument: { admin: 'admin', id: { unpack: 'splice:token:CC' } },
-            requestedInstrument: { admin: 'admin', id: { unpack: 'splice:token:enzoBTC' } },
-            paymentTokenScale: 6,
-            unitPrice: '0.00001036',
-            amount: '5000.00',
-            validUntil: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
-            description: 'Buying enzoBTC with CC.',
-        },
-    },
-    {
-        contractId: 'mock-offer-3',
-        templateId: 'OtcMarket:OtcOffer',
-        signatories: ['charlie::9999'],
-        observers: ['public::5678'],
-        payload: {
-            creator: 'charlie::9999888877776666',
-            validator: 'validator::1234',
-            cleaner: 'cleaner::1234',
-            feeRate: '0.003',
-            publicParty: 'public::5678',
-            lockedAssetCid: 'holding-3' as any,
-            lockedInstrument: { admin: 'admin', id: { unpack: 'splice:token:enzoBTC' } },
-            requestedInstrument: { admin: 'admin', id: { unpack: 'splice:token:CC' } },
-            paymentTokenScale: 6,
-            unitPrice: '98000.50',
-            amount: '0.15',
-            validUntil: new Date(Date.now() + 20 * 60 * 60 * 1000).toISOString(),
-            description: 'Large block enzoBTC trade.',
-        },
-    },
-]
+// Generate Mock Data (20+ items per side)
+const generateMockOffers = (): OtcOfferContract[] => {
+    const offers: OtcOfferContract[] = []
+
+    // Generate Asks (Selling enzoBTC)
+    for (let i = 0; i < 20; i++) {
+        offers.push({
+            contractId: `mock-ask-${i}`,
+            templateId: 'OtcMarket:OtcOffer',
+            signatories: [`seller-${i}::1234`],
+            observers: ['public::5678'],
+            payload: {
+                creator: `seller-${i}::1234`,
+                validator: 'validator::1234',
+                cleaner: 'cleaner::1234',
+                feeRate: '0.005',
+                publicParty: 'public::5678',
+                lockedAssetCid: `holding-ask-${i}` as any,
+                lockedInstrument: { admin: 'admin', id: { unpack: 'splice:token:enzoBTC' } },
+                requestedInstrument: { admin: 'admin', id: { unpack: 'splice:token:CC' } },
+                paymentTokenScale: 6,
+                unitPrice: (96500 + (Math.random() * 1000 - 500)).toFixed(2), // Varying price around 96500
+                amount: (Math.random() * 0.5 + 0.01).toFixed(4),
+                validUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                description: `Selling enzoBTC for CC - Offer ${i}`,
+            },
+        })
+    }
+
+    // Generate Bids (Buying enzoBTC -> Locked is CC)
+    for (let i = 0; i < 20; i++) {
+        offers.push({
+            contractId: `mock-bid-${i}`,
+            templateId: 'OtcMarket:OtcOffer',
+            signatories: [`buyer-${i}::5678`],
+            observers: ['public::5678'],
+            payload: {
+                creator: `buyer-${i}::5678`,
+                validator: 'validator::1234',
+                cleaner: 'cleaner::1234',
+                feeRate: '0.005',
+                publicParty: 'public::5678',
+                lockedAssetCid: `holding-bid-${i}` as any,
+                lockedInstrument: { admin: 'admin', id: { unpack: 'splice:token:CC' } },
+                requestedInstrument: { admin: 'admin', id: { unpack: 'splice:token:enzoBTC' } },
+                paymentTokenScale: 6,
+                unitPrice: (0.00001036 + (Math.random() * 0.00000010 - 0.00000005)).toFixed(8),
+                amount: (Math.random() * 5000 + 100).toFixed(2),
+                validUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                description: `Buying enzoBTC with CC - Offer ${i}`,
+            },
+        })
+    }
+
+    return offers
+}
+
+const mockOffers = generateMockOffers()
 
 export default function MarketPage() {
-    const [selectedOffer, setSelectedOffer] = useState<OtcOfferContract | null>(null)
-    const [tradeModalOpen, setTradeModalOpen] = useState(false)
-    const [loading, setLoading] = useState(false)
     const [walletConnected, setWalletConnected] = useState(false)
     const [partyId, setPartyId] = useState<string | undefined>()
-    const [activeFilter, setActiveFilter] = useState('All')
-    const [marketSide, setMarketSide] = useState<'buy' | 'sell'>('buy')
+
+    // Market State
+    const [marketPair, setMarketPair] = useState('CC/enzoBTC')
+    const [activeTab, setActiveTab] = useState('book')
+    const [selectedOffer, setSelectedOffer] = useState<OtcOfferContract | null>(null)
+    const [loading, setLoading] = useState(false)
+
+    // Derived State
+    const [baseToken, quoteToken] = marketPair.split('/')
 
     const handleConnectWallet = () => {
         setWalletConnected(true)
         setPartyId('user::1234567890abcdef')
     }
 
-    const handleTrade = (contractId: string) => {
-        const offer = mockOffers.find(o => o.contractId === contractId)
-        if (offer) {
-            setSelectedOffer(offer)
-            setTradeModalOpen(true)
-        }
-    }
+    // Filter Logic
+    const { asks, bids } = useMemo(() => {
+        const currentAsks: OtcOfferContract[] = []
+        const currentBids: OtcOfferContract[] = []
 
-    const handleConfirmTrade = async () => {
+        mockOffers.forEach(offer => {
+            const lockedSymbol = offer.payload.lockedInstrument.id.unpack.split(':').pop() || ''
+            const requestedSymbol = offer.payload.requestedInstrument.id.unpack.split(':').pop() || ''
+
+            // Check if this offer belongs to the current pair
+            const isRelated =
+                (lockedSymbol === baseToken && requestedSymbol === quoteToken) ||
+                (lockedSymbol === quoteToken && requestedSymbol === baseToken)
+
+            if (!isRelated) return
+
+            // Classify as Ask or Bid relative to Base Token (CC)
+
+            // ASK: User is Selling Base Token (Computed Price: Quote/Base)
+            // Contract: Locked = Base, Requested = Quote
+            if (lockedSymbol === baseToken) {
+                currentAsks.push(offer)
+            }
+
+            // BID: User is Buying Base Token (Computed Price: Quote/Base)
+            // Contract: Locked = Quote, Requested = Base
+            // In contract, Price is usually "Requested amount per Locked unit" (or vice versa depending on convention)
+            // But usually Price field in contract means "How much Requested per 1 Unit of Locked"
+            // If Locked=Quote (enzoBTC), Requested=Base (CC). Price in contract = CC per enzoBTC.
+            // We want Price in enzoBTC per CC (Quote per Base). 
+            // So we might need to invert price for Bids if the contract stores it "naturally".
+            // However, our Mock Data seems to store price as "Rate". 
+            // Let's assume for this UI we adapt the mock data display.
+            else if (lockedSymbol === quoteToken) {
+                // To normalize visual Price to Quote/Base:
+                // Offer 1: locked enzoBTC, requested CC. Price 96500 (CC per enzoBTC).
+                // We want Price in enzoBTC per CC = 1/96500.
+                // We'll handle this transformation in the OrderBook component or here.
+                // For now, let's just categorize them.
+                currentBids.push(offer)
+            }
+        })
+
+        // Sort: Asks = Lowest Selling Price First. Bids = Highest Buying Price First.
+        // Simplified sorting for mock data
+        currentAsks.sort((a, b) => parseFloat(a.payload.unitPrice) - parseFloat(b.payload.unitPrice))
+        currentBids.sort((a, b) => parseFloat(b.payload.unitPrice) - parseFloat(a.payload.unitPrice))
+
+        return { asks: currentAsks, bids: currentBids }
+    }, [marketPair, baseToken, quoteToken])
+
+
+    // Handlers
+    const handleTrade = async (offer: OtcOfferContract) => {
         setLoading(true)
+        // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 2000))
         setLoading(false)
-        setTradeModalOpen(false)
+        alert('Trade Executed Successfully! (Mock)')
         setSelectedOffer(null)
     }
 
-    // Filter Logic
-    const filteredOffers = mockOffers.filter(offer => {
-        const lockedSymbol = offer.payload.lockedInstrument.id.unpack.split(':').pop() || ''
-        const isCC = lockedSymbol === 'CC'
-
-        // Buy Side: Show offers where Maker is SELLING Asset (Locked != CC)
-        // Sell Side: Show offers where Maker is BUYING Asset (Locked == CC)
-        const matchesSide = marketSide === 'buy' ? !isCC : isCC
-
-        // Asset Filter
-        if (activeFilter === 'All') return matchesSide
-
-        // For this specific enzoBTC/CC market:
-        // We really only care about enzoBTC as the "Asset".
-        // CC is the currency.
-        return matchesSide // Simple for now as we only have clean pairs
-    })
+    const handleCreateOffer = async (type: 'buy' | 'sell', price: string, amount: string) => {
+        setLoading(true)
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1500))
+        setLoading(false)
+        alert(`Offer Created: ${type.toUpperCase()} ${amount} ${baseToken} @ ${price} ${quoteToken}`)
+    }
 
     return (
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-screen flex flex-col bg-[#0a0a0a]">
             <Header
                 walletConnected={walletConnected}
                 partyId={partyId}
                 onConnectWallet={handleConnectWallet}
             />
 
-            <main className="container mx-auto px-6 pt-32 pb-24 relative z-10">
-                <div className="flex flex-col xl:flex-row items-end xl:items-center justify-between mb-12 gap-8">
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-8 w-full xl:w-auto">
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="flex items-center gap-4"
-                        >
-                            <div className="w-1.5 h-12 bg-gradient-to-b from-primary to-transparent rounded-full" />
-                            <div>
-                                <h1 className="font-orbitron text-3xl font-bold text-white tracking-wide">
-                                    Live Market
-                                </h1>
-                                <p className="text-text-body text-sm">Real-time liquidity feed</p>
-                            </div>
-                        </motion.div>
-
-                        <Tabs
-                            tabs={[
-                                { id: 'buy', label: 'Buy Crypto' },
-                                { id: 'sell', label: 'Sell Crypto' },
-                            ]}
-                            activeTab={marketSide}
-                            onChange={(id) => setMarketSide(id as 'buy' | 'sell')}
-                            className="ml-0 md:ml-8"
-                        />
-                    </div>
-
-                    <div className="flex p-1 bg-white/5 rounded-full border border-white/5 backdrop-blur-sm self-end xl:self-auto overflow-x-auto max-w-full">
-                        {['All', 'enzoBTC'].map(f => (
-                            <button
-                                key={f}
-                                onClick={() => setActiveFilter(f)}
-                                className={cn(
-                                    "px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 font-exo whitespace-nowrap",
-                                    activeFilter === f
-                                        ? "bg-primary text-black shadow-lg shadow-primary/25 font-bold scale-105"
-                                        : "text-text-body hover:text-white"
-                                )}
-                            >
-                                {f}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                <OfferList
-                    offers={filteredOffers}
-                    currentUserParty={partyId}
-                    onTrade={handleTrade}
-                    loading={loading}
-                    viewType={marketSide}
-                    emptyMessage={
-                        marketSide === 'buy'
-                            ? "No active sell orders found. Be the first to list!"
-                            : "No active buy requests found. Check back later."
-                    }
+            <main className="container mx-auto px-4 md:px-6 pt-40 pb-12 flex-1 flex flex-col">
+                {/* 1. Header with Selector */}
+                <MarketHeader
+                    marketPair={marketPair}
+                    setMarketPair={setMarketPair}
                 />
-            </main>
 
-            <TradeModal
-                isOpen={tradeModalOpen}
-                onClose={() => setTradeModalOpen(false)}
-                offer={selectedOffer?.payload || null}
-                lockedAmount={1.5}
-                onConfirm={handleConfirmTrade}
-                loading={loading}
-            />
+                {/* 2. Main Layout - 2 Columns */}
+                <div className="flex flex-col xl:flex-row gap-6 h-[calc(100vh-250px)] min-h-[600px]">
+
+                    {/* LEFT COL: Tabs & Content */}
+                    <div className="flex flex-col flex-1 h-full overflow-hidden">
+                        <MarketTabs activeTab={activeTab} onChange={setActiveTab} />
+
+                        <div className="flex-1 overflow-hidden relative">
+                            {/* Order Book */}
+                            {activeTab === 'book' && (
+                                <motion.div
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 20 }}
+                                    className="h-full"
+                                >
+                                    <MarketOrderBook
+                                        asks={asks}
+                                        bids={bids}
+                                        onSelect={setSelectedOffer}
+                                        selectedId={selectedOffer?.contractId}
+                                        baseToken={baseToken}
+                                        quoteToken={quoteToken}
+                                    />
+                                </motion.div>
+                            )}
+
+                            {/* Price Graph */}
+                            {activeTab === 'graph' && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="h-full"
+                                >
+                                    <MarketGraph baseToken={baseToken} quoteToken={quoteToken} />
+                                </motion.div>
+                            )}
+
+                            {/* Trade History */}
+                            {activeTab === 'history' && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="h-full"
+                                >
+                                    <MarketHistory baseToken={baseToken} quoteToken={quoteToken} />
+                                </motion.div>
+                            )}
+
+                            {/* My Orders */}
+                            {activeTab === 'orders' && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="h-full"
+                                >
+                                    <MarketMyOrders baseToken={baseToken} quoteToken={quoteToken} />
+                                </motion.div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* RIGHT COL: Trade Interaction */}
+                    <MarketTradePanel
+                        selectedOffer={selectedOffer}
+                        onCloseTaker={() => setSelectedOffer(null)}
+                        onTrade={handleTrade}
+                        onCreateOffer={handleCreateOffer}
+                        loading={loading}
+                        baseToken={baseToken}
+                        quoteToken={quoteToken}
+                        // Mock Balances
+                        userBalanceBase="10000.00"
+                        userBalanceQuote="0.5432"
+                    />
+                </div>
+            </main>
         </div>
     )
 }

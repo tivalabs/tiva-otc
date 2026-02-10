@@ -116,6 +116,19 @@ export function formatAmount(amount: number | string, decimals: number = 2): str
 /**
  * cn utility for conditional classNames
  */
-export function cn(...classes: (string | undefined | false)[]): string {
+export function cn(...classes: (string | undefined | false | null)[]): string {
     return classes.filter(Boolean).join(' ')
+}
+
+/**
+ * Format currency with symbol
+ */
+export function formatCurrency(amount: number | string, currency: string = '', decimals: number = 2): string {
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount
+    const formatted = new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
+    }).format(num)
+
+    return currency ? `${formatted} ${currency}` : formatted
 }

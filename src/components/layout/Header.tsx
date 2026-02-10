@@ -30,8 +30,6 @@ export function Header({ walletConnected = false, partyId, onConnectWallet }: He
     const navLinks = [
         { href: '/', label: 'Home', icon: Hexagon },
         { href: '/market', label: 'Market', icon: LayoutGrid },
-        { href: '/create', label: 'Create', icon: Plus },
-        { href: '/my-offers', label: 'Portfolio', icon: User },
     ]
 
     return (
